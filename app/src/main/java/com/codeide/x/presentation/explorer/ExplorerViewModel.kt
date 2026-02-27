@@ -31,7 +31,7 @@ class ExplorerViewModel(
     val uiState: StateFlow<ExplorerUiState> = _uiState.asStateFlow()
 
     init {
-        loadFiles(fileRepository.getDefaultPath())
+        // Don't auto-load - show "open folder" message initially
     }
 
     fun loadFiles(path: String) {

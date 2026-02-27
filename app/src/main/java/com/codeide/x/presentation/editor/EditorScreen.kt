@@ -30,7 +30,7 @@ fun EditorScreen(
     val explorerUiState by explorerViewModel.uiState.collectAsStateWithLifecycle()
     val activeTab = editorUiState.tabs.find { it.id == editorUiState.activeTabId }
 
-    var isSidebarExpanded by remember { mutableStateOf(true) }
+    var isSidebarExpanded by remember { mutableStateOf(false) }
     var showNewFileDialog by remember { mutableStateOf(false) }
     var showNewFolderDialog by remember { mutableStateOf(false) }
 
@@ -86,7 +86,38 @@ fun EditorScreen(
 
                     HorizontalDivider()
 
-                    if (explorerUiState.isLoading) {
+                    if (explorerUiState.currentPath.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.FolderOpen,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    "Open Folder",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(
+                                    onClick = { explorerViewModel.loadFiles(explorerViewModel.getDefaultPath()) }
+                                ) {
+                                    Icon(Icons.Default.Folder, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Choose Folder")
+                                }
+                            }
+                        }
+                    } else if (explorerUiState.isLoading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
