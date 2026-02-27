@@ -4,13 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codeide.x.data.repository.FileRepository
 import com.codeide.x.domain.model.FileItem
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import java.io.File
 
 data class ExplorerUiState(
     val currentPath: String = "",
@@ -24,8 +23,7 @@ data class ExplorerUiState(
     val dialogFileName: String = ""
 )
 
-@HiltViewModel
-class ExplorerViewModel @Inject constructor(
+class ExplorerViewModel(
     private val fileRepository: FileRepository
 ) : ViewModel() {
 
@@ -55,7 +53,7 @@ class ExplorerViewModel @Inject constructor(
     fun navigateUp() {
         val currentPath = _uiState.value.currentPath
         if (currentPath.isNotEmpty()) {
-            val parentPath = java.io.File(currentPath).parent
+            val parentPath = File(currentPath).parent
             if (parentPath != null) {
                 loadFiles(parentPath)
             }

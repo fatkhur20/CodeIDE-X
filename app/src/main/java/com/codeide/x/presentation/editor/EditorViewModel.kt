@@ -2,8 +2,6 @@ package com.codeide.x.presentation.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.blacksquircle.ui.editorkit.plugin.TextProcessor
-import com.blacksquircle.ui.language.base.Language
 import com.blacksquircle.ui.language.c.CLanguage
 import com.blacksquircle.ui.language.cpp.CppLanguage
 import com.blacksquircle.ui.language.css.CssLanguage
@@ -20,14 +18,12 @@ import com.blacksquircle.ui.language.typescript.TypeScriptLanguage
 import com.blacksquircle.ui.language.xml.XmlLanguage
 import com.codeide.x.data.repository.FileRepository
 import com.codeide.x.domain.model.EditorTab
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
-import javax.inject.Inject
 
 data class EditorUiState(
     val tabs: List<EditorTab> = emptyList(),
@@ -38,8 +34,7 @@ data class EditorUiState(
     val currentFilePath: String = ""
 )
 
-@HiltViewModel
-class EditorViewModel @Inject constructor(
+class EditorViewModel(
     private val fileRepository: FileRepository
 ) : ViewModel() {
 
