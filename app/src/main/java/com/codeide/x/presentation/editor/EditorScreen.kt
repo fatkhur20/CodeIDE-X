@@ -133,7 +133,33 @@ fun EditorScreen(
                                     onClick = {
                                         if (file.isDirectory) {
                                             explorerViewModel.navigateToFolder(file.path)
-                                        } else {
+                    } else if (explorerUiState.files.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    "Empty Folder",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row {
+                                    TextButton(onClick = { showNewFileDialog = true }) {
+                                        Icon(Icons.Default.NoteAdd, contentDescription = null)
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("New File")
+                                    }
+                                    TextButton(onClick = { showNewFolderDialog = true }) {
+                                        Icon(Icons.Default.CreateNewFolder, contentDescription = null)
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("New Folder")
+                                    }
+                                }
+                            }
+                        }
+                    } else {
                                             val ext = file.name.substringAfterLast(".", "")
                                             editorViewModel.openFile(file.path, file.name, ext)
                                         }
