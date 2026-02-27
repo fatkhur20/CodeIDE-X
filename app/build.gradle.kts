@@ -7,13 +7,12 @@ plugins {
 
 android {
     namespace = "com.codeide.x"
-    compileSdk = 33
-    buildToolsVersion = "33.0.3"
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.codeide.x"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
     }
 
     buildTypes {
