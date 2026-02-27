@@ -107,8 +107,7 @@ fun MonacoEditor(
                 settings.builtInZoomControls = false
                 settings.displayZoomControls = false
                 settings.setSupportZoom(false)
-                settings.cacheMode = WebView.LOAD_NO_CACHE
-                
+
                 webChromeClient = WebChromeClient()
 
                 webViewClient = object : WebViewClient() {
