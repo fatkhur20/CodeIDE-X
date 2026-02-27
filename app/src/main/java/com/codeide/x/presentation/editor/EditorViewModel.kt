@@ -27,7 +27,7 @@ class EditorViewModel(
     private val _uiState = MutableStateFlow(EditorUiState())
     val uiState: StateFlow<EditorUiState> = _uiState.asStateFlow()
 
-    fun openFile(filePath: String, fileName: String) {
+    fun openFile(filePath: String, fileName: String, extension: String? = null) {
         viewModelScope.launch {
             val existingTab = _uiState.value.tabs.find { it.filePath == filePath }
             if (existingTab != null) {
@@ -36,14 +36,14 @@ class EditorViewModel(
             }
 
             val content = fileRepository.readFile(filePath)
-            val extension = fileName.substringAfterLast(".", "")
+            val lang = extension ?: fileName.substringAfterLast(".", "")
 
             val newTab = EditorTab(
                 id = UUID.randomUUID().toString(),
                 filePath = filePath,
                 fileName = fileName,
                 content = content,
-                language = extension,
+                language = lang,
                 isModified = false
             )
 

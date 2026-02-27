@@ -9,12 +9,10 @@ import androidx.navigation.compose.rememberNavController
 import com.codeide.x.data.repository.FileRepository
 import com.codeide.x.presentation.editor.EditorScreen
 import com.codeide.x.presentation.editor.EditorViewModel
-import com.codeide.x.presentation.explorer.ExplorerScreen
 import com.codeide.x.presentation.explorer.ExplorerViewModel
 
 sealed class Screen(val route: String) {
     object Editor : Screen("editor")
-    object Explorer : Screen("explorer")
 }
 
 @Composable
@@ -31,23 +29,8 @@ fun AppNavigation(
     ) {
         composable(Screen.Editor.route) {
             EditorScreen(
-                viewModel = editorViewModel,
-                onNavigateToExplorer = {
-                    navController.navigate(Screen.Explorer.route)
-                }
-            )
-        }
-
-        composable(Screen.Explorer.route) {
-            ExplorerScreen(
-                viewModel = explorerViewModel,
-                onFileSelected = { filePath, fileName ->
-                    editorViewModel.openFile(filePath, fileName)
-                    navController.popBackStack()
-                },
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
+                editorViewModel = editorViewModel,
+                explorerViewModel = explorerViewModel
             )
         }
     }
