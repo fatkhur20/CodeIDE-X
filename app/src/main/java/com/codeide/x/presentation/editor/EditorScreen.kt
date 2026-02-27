@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codeide.x.domain.model.FileItem
@@ -125,7 +126,7 @@ fun EditorScreen(
 
             DraggableDivider(
                 onDrag = { delta ->
-                    val newWidth = sidebarWidth + delta
+                    val newWidth = sidebarWidth + delta.dp
                     sidebarWidth = newWidth.coerceIn(150.dp, 500.dp)
                 }
             )
