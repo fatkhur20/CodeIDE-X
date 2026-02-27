@@ -2,11 +2,12 @@ package com.codeide.x.presentation.editor.components
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,72 +26,69 @@ fun MonacoEditor(
 ) {
     val context = LocalContext.current
     var isEditorReady by remember { mutableStateOf(false) }
-    var currentContent by remember(content) { mutableStateOf(content) }
-    var currentLanguage by remember(language) { mutableStateOf(language ?: "plaintext") }
 
-    val monacoHtml = remember {
-        """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                html, body { width: 100%; height: 100%; overflow: hidden; background: #1e1e1e; }
-                #editor { width: 100%; height: 100%; }
-            </style>
-            <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
-        </head>
-        <body>
-            <div id="editor"></div>
-            <script>
-                require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' }});
-                
-                require(['vs/editor/editor.main'], function() {
-                    var editor = monaco.editor.create(document.getElementById('editor'), {
-                        value: '',
-                        language: 'plaintext',
-                        theme: 'vs-dark',
-                        automaticLayout: true,
-                        fontSize: 14,
-                        fontFamily: 'Consolas, Monaco, monospace',
-                        minimap: { enabled: false },
-                        scrollBeyondLastLine: false,
-                        wordWrap: 'on',
-                        lineNumbers: 'on',
-                        renderWhitespace: 'selection',
-                        tabSize: 4,
-                        insertSpaces: true,
-                        padding: { top: 8 }
-                    });
+    val monacoHtml = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #1e1e1e; }
+        #editor { width: 100%; height: 100%; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+</head>
+<body>
+    <div id="editor"></div>
+    <script>
+        var editor = null;
+        
+        require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' }});
+        
+        require(['vs/editor/editor.main'], function() {
+            editor = monaco.editor.create(document.getElementById('editor'), {
+                value: '',
+                language: 'plaintext',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                fontFamily: 'Consolas, Monaco, monospace',
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                wordWrap: 'on',
+                lineNumbers: 'on',
+                renderWhitespace: 'selection',
+                tabSize: 4,
+                insertSpaces: true,
+                padding: { top: 8 },
+                readOnly: false
+            });
 
-                    window.getEditorContent = function() {
-                        return editor.getValue();
-                    };
+            editor.onDidChangeModelContent(function() {
+                try {
+                    window.android.onContentChange(editor.getValue());
+                } catch(e) {}
+            });
 
-                    window.setEditorContent = function(content) {
-                        if (editor.getValue() !== content) {
-                            editor.setValue(content);
-                        }
-                    };
+            window.android.onEditorReady();
+        });
 
-                    window.setEditorLanguage = function(lang) {
-                        monaco.editor.setModelLanguage(editor.getModel(), lang);
-                    };
+        function setContent(text) {
+            if (editor && editor.getValue() !== text) {
+                editor.setValue(text);
+            }
+        }
 
-                    editor.onDidChangeModelContent(function() {
-                        window.android.onContentChange(editor.getValue());
-                    });
-
-                    window.onload = function() {
-                        window.android.onEditorReady();
-                    };
-                });
-            </script>
-        </body>
-        </html>
-        """.trimIndent()
-    }
+        function setLanguage(lang) {
+            if (editor) {
+                monaco.editor.setModelLanguage(editor.getModel(), lang);
+            }
+        }
+    </script>
+</body>
+</html>
+"""
 
     AndroidView(
         modifier = modifier.fillMaxSize(),
@@ -108,58 +106,60 @@ fun MonacoEditor(
                 settings.useWideViewPort = true
                 settings.builtInZoomControls = false
                 settings.displayZoomControls = false
+                settings.setSupportZoom(false)
+                settings.cacheMode = WebView.LOAD_NO_CACHE
                 
+                webChromeClient = WebChromeClient()
+
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
-                        if (isEditorReady) {
-                            evaluateJavascript("window.setEditorContent('$currentContent');", null)
-                            evaluateJavascript("window.setEditorLanguage('$currentLanguage');", null)
-                        }
                     }
                 }
 
                 addJavascriptInterface(
-                    AndroidInterface(
+                    JSInterface(
                         onReady = { isEditorReady = true },
-                        onContentChanged = { newContent ->
-                            if (newContent != currentContent) {
-                                currentContent = newContent
-                                onContentChange(newContent)
-                            }
-                        }
+                        onContentChanged = onContentChange
                     ),
                     "android"
                 )
 
-                loadDataWithBaseURL(null, monacoHtml, "text/html", "UTF-8", null)
+                loadDataWithBaseURL("https://cdn.jsdelivr.net", monacoHtml, "text/html", "UTF-8", null)
             }
         },
         update = { webView ->
             if (isEditorReady) {
-                val escapedContent = content.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n").replace("\r", "")
-                webView.evaluateJavascript("window.setEditorContent('$escapedContent');", null)
-                
-                val lang = language ?: "plaintext"
-                if (lang != currentLanguage) {
-                    currentLanguage = lang
-                    webView.evaluateJavascript("window.setEditorLanguage('$lang');", null)
+                try {
+                    val safeContent = content
+                        .replace("\\", "\\\\")
+                        .replace("'", "\\'")
+                        .replace("\n", "\\n")
+                        .replace("\r", "")
+                        .replace("\t", "\\t")
+                    webView.evaluateJavascript("setContent('$safeContent');", null)
+                    
+                    language?.let { lang ->
+                        webView.evaluateJavascript("setLanguage('$lang');", null)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }
     )
 }
 
-class AndroidInterface(
+class JSInterface(
     private val onReady: () -> Unit,
     private val onContentChanged: (String) -> Unit
 ) {
-    @android.webkit.JavascriptInterface
+    @JavascriptInterface
     fun onEditorReady() {
         onReady()
     }
 
-    @android.webkit.JavascriptInterface
+    @JavascriptInterface
     fun onContentChange(content: String) {
         onContentChanged(content)
     }
