@@ -1,3 +1,5 @@
+package com.codeide.x.domain.model
+
 data class EditorTab(
     val id: String,
     val filePath: String,
