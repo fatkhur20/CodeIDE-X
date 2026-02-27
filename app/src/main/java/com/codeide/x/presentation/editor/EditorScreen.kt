@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codeide.x.presentation.editor.components.CodeEditorView
 import com.codeide.x.presentation.editor.components.SearchBar
@@ -18,7 +17,7 @@ import com.codeide.x.presentation.editor.components.TabBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorScreen(
-    viewModel: EditorViewModel = hiltViewModel(),
+    viewModel: EditorViewModel,
     onNavigateToExplorer: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,7 +50,6 @@ fun EditorScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Tab Bar
             TabBar(
                 tabs = uiState.tabs,
                 activeTabId = uiState.activeTabId,
@@ -59,7 +57,6 @@ fun EditorScreen(
                 onTabClose = { viewModel.closeTab(it) }
             )
 
-            // Search Bar
             if (uiState.isSearchVisible) {
                 SearchBar(
                     searchQuery = uiState.searchQuery,
@@ -67,11 +64,10 @@ fun EditorScreen(
                     onSearchQueryChange = { viewModel.updateSearchQuery(it) },
                     onReplaceQueryChange = { viewModel.updateReplaceQuery(it) },
                     onClose = { viewModel.toggleSearchBar() },
-                    onReplace = { /* Replace implementation */ }
+                    onReplace = { }
                 )
             }
 
-            // Code Editor
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -87,7 +83,6 @@ fun EditorScreen(
                         }
                     )
                 } else {
-                    // Empty state
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center

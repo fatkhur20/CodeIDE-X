@@ -58,6 +58,7 @@ dependencies {
     implementation("com.blacksquircle.ui:language-rust:2.9.0")
     implementation("com.blacksquircle.ui:language-c:2.9.0")
     implementation("com.blacksquircle.ui:language-cpp:2.9.0")
+    implementation("com.blacksquircle.ui:language-plaintext:2.9.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

@@ -1,5 +1,6 @@
 package com.codeide.x.presentation.explorer
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codeide.x.domain.model.FileItem
 import com.codeide.x.presentation.explorer.components.FileTreeItem
@@ -19,7 +19,7 @@ import com.codeide.x.presentation.explorer.components.FileTreeItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExplorerScreen(
-    viewModel: ExplorerViewModel = hiltViewModel(),
+    viewModel: ExplorerViewModel,
     onFileSelected: (String, String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -45,7 +45,7 @@ fun ExplorerScreen(
                         Text(
                             text = "Explorer",
                             style = MaterialTheme.typography.titleMedium
-                        }
+                        )
                     }
                 },
                 actions = {
@@ -67,16 +67,14 @@ fun ExplorerScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Current path breadcrumb
             CurrentPathBar(
                 currentPath = uiState.currentPath,
                 onNavigateUp = { viewModel.navigateUp() },
                 onPathClick = { path -> viewModel.navigateToFolder(path) }
             )
 
-            Divider()
+            HorizontalDivider()
 
-            // File list
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -129,7 +127,6 @@ fun ExplorerScreen(
         }
     }
 
-    // Context menu for selected file
     uiState.selectedFile?.let { selectedFile ->
         FileContextMenu(
             file = selectedFile,
@@ -139,7 +136,6 @@ fun ExplorerScreen(
         )
     }
 
-    // Dialogs
     if (showNewFileDialog) {
         NewItemDialog(
             title = "New File",
@@ -225,12 +221,10 @@ private fun CurrentPathBar(
 
         Spacer(modifier = Modifier.width(4.dp))
 
-        Row(
-            modifier = Modifier.weight(1f)
-        ) {
+        Row(modifier = Modifier.weight(1f)) {
             pathParts.forEachIndexed { index, part ->
                 if (index > 0) {
-                    Text("/", style = MaterialTheme.typography.bodySmall)
+                    Text("/")
                 }
                 TextButton(
                     onClick = {
