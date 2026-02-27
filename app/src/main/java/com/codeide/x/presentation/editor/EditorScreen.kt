@@ -2,6 +2,7 @@ package com.codeide.x.presentation.editor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +33,7 @@ fun EditorScreen(
     val activeTab = editorUiState.tabs.find { it.id == editorUiState.activeTabId }
 
     var isSidebarExpanded by remember { mutableStateOf(false) }
+    var sidebarWidth by remember { mutableStateOf(280.dp) }
     var showNewFileDialog by remember { mutableStateOf(false) }
     var showNewFolderDialog by remember { mutableStateOf(false) }
 
@@ -38,7 +41,7 @@ fun EditorScreen(
         if (isSidebarExpanded) {
             Surface(
                 modifier = Modifier
-                    .width(280.dp)
+                    .width(sidebarWidth)
                     .fillMaxHeight(),
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
@@ -120,7 +123,12 @@ fun EditorScreen(
                 }
             }
 
-            VerticalDivider()
+            DraggableDivider(
+                onDrag = { delta ->
+                    val newWidth = sidebarWidth + delta
+                    sidebarWidth = newWidth.coerceIn(150.dp, 500.dp)
+                }
+            )
         }
 
         Column(modifier = Modifier.fillMaxSize()) {
@@ -440,4 +448,35 @@ private fun NewItemDialog(
             }
         }
     )
+}
+
+@Composable
+private fun DraggableDivider(onDrag: (Float) -> Unit) {
+    var isDragging by remember { mutableStateOf(false) }
+    
+    Box(
+        modifier = Modifier
+            .width(4.dp)
+            .fillMaxHeight()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragStart = { isDragging = true },
+                    onDragEnd = { isDragging = false },
+                    onDragCancel = { isDragging = false },
+                    onHorizontalDrag = { _, dragAmount ->
+                        onDrag(dragAmount)
+                    }
+                )
+            }
+    ) {
+        if (isDragging) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(4.dp)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+    }
 }
