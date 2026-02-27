@@ -43,7 +43,7 @@ class EditorViewModel(
                 filePath = filePath,
                 fileName = fileName,
                 content = content,
-                extension = extension,
+                language = extension,
                 isModified = false
             )
 

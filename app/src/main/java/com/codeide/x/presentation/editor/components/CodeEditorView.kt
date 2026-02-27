@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 @Composable
 fun CodeEditorView(
     content: String,
-    language: com.blacksquircle.ui.language.base.Language?,
+    language: String?,
     modifier: Modifier = Modifier,
     onContentChange: (String) -> Unit = {}
 ) {
