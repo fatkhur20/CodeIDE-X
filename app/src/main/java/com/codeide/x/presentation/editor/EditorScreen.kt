@@ -87,36 +87,9 @@ fun EditorScreen(
                     HorizontalDivider()
 
                     if (explorerUiState.currentPath.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.FolderOpen,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(48.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    "Open Folder",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Button(
-                                    onClick = { explorerViewModel.loadFiles(explorerViewModel.getDefaultPath()) }
-                                ) {
-                                    Icon(Icons.Default.Folder, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Choose Folder")
-                                }
-                            }
-                        }
+                        OpenFolderPrompt(
+                            onOpenFolder = { explorerViewModel.loadFiles(explorerViewModel.getDefaultPath()) }
+                        )
                     } else if (explorerUiState.isLoading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -124,50 +97,25 @@ fun EditorScreen(
                         ) {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp))
                         }
-                    } else {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(explorerUiState.files) { file ->
-                                FileTreeItem(
-                                    file = file,
-                                    isSelected = explorerUiState.selectedFile?.path == file.path,
-                                    onClick = {
-                                        if (file.isDirectory) {
-                                            explorerViewModel.navigateToFolder(file.path)
                     } else if (explorerUiState.files.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    "Empty Folder",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Row {
-                                    TextButton(onClick = { showNewFileDialog = true }) {
-                                        Icon(Icons.Default.NoteAdd, contentDescription = null)
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("New File")
-                                    }
-                                    TextButton(onClick = { showNewFolderDialog = true }) {
-                                        Icon(Icons.Default.CreateNewFolder, contentDescription = null)
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("New Folder")
-                                    }
-                                }
-                            }
-                        }
+                        EmptyFolderOptions(
+                            onNewFile = { showNewFileDialog = true },
+                            onNewFolder = { showNewFolderDialog = true }
+                        )
                     } else {
-                                            val ext = file.name.substringAfterLast(".", "")
-                                            editorViewModel.openFile(file.path, file.name, ext)
-                                        }
-                                    },
-                                    onLongClick = { explorerViewModel.selectFile(file) }
-                                )
-                            }
-                        }
+                        FileList(
+                            files = explorerUiState.files,
+                            selectedFile = explorerUiState.selectedFile,
+                            onFileClick = { file ->
+                                if (file.isDirectory) {
+                                    explorerViewModel.navigateToFolder(file.path)
+                                } else {
+                                    val ext = file.name.substringAfterLast(".", "")
+                                    editorViewModel.openFile(file.path, file.name, ext)
+                                }
+                            },
+                            onFileLongClick = { explorerViewModel.selectFile(it) }
+                        )
                     }
                 }
             }
@@ -233,31 +181,7 @@ fun EditorScreen(
                         }
                     )
                 } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.Code,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "No file open",
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Select a file from the explorer",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                    EmptyEditor()
                 }
             }
         }
@@ -285,6 +209,115 @@ fun EditorScreen(
                 showNewFolderDialog = false
             }
         )
+    }
+}
+
+@Composable
+private fun OpenFolderPrompt(onOpenFolder: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Icon(
+                Icons.Default.FolderOpen,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Open Folder",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onOpenFolder) {
+                Icon(Icons.Default.Folder, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Choose Folder")
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyFolderOptions(onNewFile: () -> Unit, onNewFolder: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                "Empty Folder",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                TextButton(onClick = onNewFile) {
+                    Icon(Icons.Default.NoteAdd, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("New File")
+                }
+                TextButton(onClick = onNewFolder) {
+                    Icon(Icons.Default.CreateNewFolder, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("New Folder")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FileList(
+    files: List<FileItem>,
+    selectedFile: FileItem?,
+    onFileClick: (FileItem) -> Unit,
+    onFileLongClick: (FileItem) -> Unit
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(files) { file ->
+            FileTreeItem(
+                file = file,
+                isSelected = selectedFile?.path == file.path,
+                onClick = { onFileClick(file) },
+                onLongClick = { onFileLongClick(file) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyEditor() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.Code,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "No file open",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Select a file from the explorer",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
