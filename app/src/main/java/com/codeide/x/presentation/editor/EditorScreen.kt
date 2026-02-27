@@ -18,6 +18,7 @@ import com.codeide.x.domain.model.FileItem
 import com.codeide.x.presentation.editor.components.CodeEditorView
 import com.codeide.x.presentation.editor.components.SearchBar
 import com.codeide.x.presentation.editor.components.TabBar
+import com.codeide.x.presentation.explorer.ExplorerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
