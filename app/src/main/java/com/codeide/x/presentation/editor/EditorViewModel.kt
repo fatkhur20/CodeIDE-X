@@ -2,20 +2,6 @@ package com.codeide.x.presentation.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.blacksquircle.ui.language.c.CLanguage
-import com.blacksquircle.ui.language.cpp.CppLanguage
-import com.blacksquircle.ui.language.css.CssLanguage
-import com.blacksquircle.ui.language.go.GoLanguage
-import com.blacksquircle.ui.language.html.HtmlLanguage
-import com.blacksquircle.ui.language.java.JavaLanguage
-import com.blacksquircle.ui.language.javascript.JavaScriptLanguage
-import com.blacksquircle.ui.language.json.JsonLanguage
-import com.blacksquircle.ui.language.kotlin.KotlinLanguage
-import com.blacksquircle.ui.language.plaintext.PlaintextLanguage
-import com.blacksquircle.ui.language.python.PythonLanguage
-import com.blacksquircle.ui.language.rust.RustLanguage
-import com.blacksquircle.ui.language.typescript.TypeScriptLanguage
-import com.blacksquircle.ui.language.xml.XmlLanguage
 import com.codeide.x.data.repository.FileRepository
 import com.codeide.x.domain.model.EditorTab
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,23 +27,6 @@ class EditorViewModel(
     private val _uiState = MutableStateFlow(EditorUiState())
     val uiState: StateFlow<EditorUiState> = _uiState.asStateFlow()
 
-    private val languageMap = mapOf(
-        "kotlin" to KotlinLanguage(),
-        "java" to JavaLanguage(),
-        "python" to PythonLanguage(),
-        "javascript" to JavaScriptLanguage(),
-        "typescript" to TypeScriptLanguage(),
-        "html" to HtmlLanguage(),
-        "css" to CssLanguage(),
-        "json" to JsonLanguage(),
-        "xml" to XmlLanguage(),
-        "go" to GoLanguage(),
-        "rust" to RustLanguage(),
-        "c" to CLanguage(),
-        "cpp" to CppLanguage(),
-        "plaintext" to PlaintextLanguage()
-    )
-
     fun openFile(filePath: String, fileName: String) {
         viewModelScope.launch {
             val existingTab = _uiState.value.tabs.find { it.filePath == filePath }
@@ -68,15 +37,13 @@ class EditorViewModel(
 
             val content = fileRepository.readFile(filePath)
             val extension = fileName.substringAfterLast(".", "")
-            val languageName = fileRepository.getLanguageFromExtension(extension)
-            val language = languageMap[languageName] ?: PlaintextLanguage()
 
             val newTab = EditorTab(
                 id = UUID.randomUUID().toString(),
                 filePath = filePath,
                 fileName = fileName,
                 content = content,
-                language = language,
+                extension = extension,
                 isModified = false
             )
 

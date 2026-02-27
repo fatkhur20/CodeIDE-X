@@ -6,7 +6,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Replace
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -55,7 +56,7 @@ fun SearchBar(
                 }
 
                 IconButton(onClick = { showReplace = !showReplace }) {
-                    Icon(Icons.Default.Replace, contentDescription = "Replace")
+                    Icon(Icons.Default.Edit, contentDescription = "Replace")
                 }
 
                 IconButton(onClick = onClose) {

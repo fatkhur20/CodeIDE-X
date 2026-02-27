@@ -1,44 +1,34 @@
 package com.codeide.x.presentation.editor.components
 
-import android.widget.EditText
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import com.blacksquircle.ui.editorkit.plugin.TextProcessor
-import com.blacksquircle.ui.editorkit.themes.TextTheme
-import com.blacksquircle.ui.language.base.Language
 
 @Composable
 fun CodeEditorView(
     content: String,
-    language: Language?,
+    language: com.blacksquircle.ui.language.base.Language?,
     modifier: Modifier = Modifier,
     onContentChange: (String) -> Unit = {}
 ) {
-    val context = LocalContext.current
+    var text by remember(content) { mutableStateOf(content) }
     
-    val textProcessor = remember {
-        TextProcessor(context).apply {
-            language?.let { this.language = it }
-            setTextTheme(TextTheme.MONOKAI)
-        }
-    }
-
-    DisposableEffect(content) {
-        if (textProcessor.text.toString() != content) {
-            textProcessor.setTextContent(content)
-        }
-        onDispose { }
-    }
-
-    AndroidView(
-        factory = { textProcessor },
-        modifier = modifier,
-        update = { view ->
-            language?.let { view.language = it }
-        }
+    OutlinedTextField(
+        value = text,
+        onValueChange = { 
+            text = it
+            onContentChange(it)
+        },
+        modifier = modifier.fillMaxSize(),
+        textStyle = androidx.compose.ui.text.TextStyle(
+            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+        ),
+        label = { Text("Editor") }
     )
 }

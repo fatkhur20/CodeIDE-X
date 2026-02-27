@@ -43,23 +43,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
-    // EditorKit
-    implementation("com.blacksquircle.ui:editorkit:2.9.0")
-    implementation("com.blacksquircle.ui:language-java:2.9.0")
-    implementation("com.blacksquircle.ui:language-kotlin:2.9.0")
-    implementation("com.blacksquircle.ui:language-python:2.9.0")
-    implementation("com.blacksquircle.ui:language-javascript:2.9.0")
-    implementation("com.blacksquircle.ui:language-typescript:2.9.0")
-    implementation("com.blacksquircle.ui:language-html:2.9.0")
-    implementation("com.blacksquircle.ui:language-css:2.9.0")
-    implementation("com.blacksquircle.ui:language-json:2.9.0")
-    implementation("com.blacksquircle.ui:language-xml:2.9.0")
-    implementation("com.blacksquircle.ui:language-go:2.9.0")
-    implementation("com.blacksquircle.ui:language-rust:2.9.0")
-    implementation("com.blacksquircle.ui:language-c:2.9.0")
-    implementation("com.blacksquircle.ui:language-cpp:2.9.0")
-    implementation("com.blacksquircle.ui:language-plaintext:2.9.0")
-
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
