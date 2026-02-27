@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codeide.x.domain.model.FileItem
 import com.codeide.x.presentation.editor.components.CodeEditorView
+import com.codeide.x.presentation.editor.components.MonacoEditor
 import com.codeide.x.presentation.editor.components.SearchBar
 import com.codeide.x.presentation.editor.components.TabBar
 import com.codeide.x.presentation.explorer.ExplorerViewModel
@@ -181,7 +182,7 @@ fun EditorScreen(
                     .weight(1f)
             ) {
                 if (activeTab != null) {
-                    CodeEditorView(
+                    MonacoEditor(
                         content = activeTab.content,
                         language = activeTab.language,
                         modifier = Modifier.fillMaxSize(),
